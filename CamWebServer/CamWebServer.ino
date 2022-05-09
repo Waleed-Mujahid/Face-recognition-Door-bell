@@ -6,16 +6,10 @@
 //            Ensure ESP32 Wrover Module or other board with PSRAM is selected
 //            Partial images will be transmitted if image exceeds buffer size
 //
-//            You must select partition scheme from the board menu that has at least 3MB APP space.
-//            Face Recognition is DISABLED for ESP32 and ESP32-S2, because it takes up from 15 
-//            seconds to process single frame. Face Detection is ENABLED if PSRAM is enabled as well
 
-// ===================
 // Select camera model
-// ===================
 //#define CAMERA_MODEL_WROVER_KIT // Has PSRAM
 //#define CAMERA_MODEL_ESP_EYE // Has PSRAM
-//#define CAMERA_MODEL_ESP32S3_EYE // Has PSRAM
 //#define CAMERA_MODEL_M5STACK_PSRAM // Has PSRAM
 //#define CAMERA_MODEL_M5STACK_V2_PSRAM // M5Camera version B Has PSRAM
 //#define CAMERA_MODEL_M5STACK_WIDE // Has PSRAM
@@ -23,16 +17,12 @@
 //#define CAMERA_MODEL_M5STACK_UNITCAM // No PSRAM
 #define CAMERA_MODEL_AI_THINKER // Has PSRAM
 //#define CAMERA_MODEL_TTGO_T_JOURNAL // No PSRAM
-// ** Espressif Internal Boards **
-//#define CAMERA_MODEL_ESP32_CAM_BOARD
-//#define CAMERA_MODEL_ESP32S2_CAM_BOARD
-//#define CAMERA_MODEL_ESP32S3_CAM_LCD
+
+#define LED_PIN 12  // ESP32 pin GIOP18, which connected to led
+
 
 #include "camera_pins.h"
 
-// ===========================
-// Enter your WiFi credentials
-// ===========================
 const char* ssid = "E!";
 const char* password = "islamabad123";
 
@@ -42,7 +32,8 @@ void setup() {
   Serial.begin(115200);
   Serial.setDebugOutput(true);
   Serial.println();
-
+  pinMode(LED_PIN, OUTPUT);          // set ESP32 pin to output mode
+  
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
   config.ledc_timer = LEDC_TIMER_0;
@@ -63,32 +54,18 @@ void setup() {
   config.pin_pwdn = PWDN_GPIO_NUM;
   config.pin_reset = RESET_GPIO_NUM;
   config.xclk_freq_hz = 20000000;
-  config.frame_size = FRAMESIZE_UXGA;
-  config.pixel_format = PIXFORMAT_JPEG; // for streaming
-  //config.pixel_format = PIXFORMAT_RGB565; // for face detection/recognition
-  config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
-  config.fb_location = CAMERA_FB_IN_PSRAM;
-  config.jpeg_quality = 12;
-  config.fb_count = 1;
+  config.pixel_format = PIXFORMAT_JPEG;
   
   // if PSRAM IC present, init with UXGA resolution and higher JPEG quality
   //                      for larger pre-allocated frame buffer.
-  if(config.pixel_format == PIXFORMAT_JPEG){
-    if(psramFound()){
-      config.jpeg_quality = 10;
-      config.fb_count = 2;
-      config.grab_mode = CAMERA_GRAB_LATEST;
-    } else {
-      // Limit the frame size when PSRAM is not available
-      config.frame_size = FRAMESIZE_SVGA;
-      config.fb_location = CAMERA_FB_IN_DRAM;
-    }
-  } else {
-    // Best option for face detection/recognition
-    config.frame_size = FRAMESIZE_240X240;
-#if CONFIG_IDF_TARGET_ESP32S3
+  if(psramFound()){
+    config.frame_size = FRAMESIZE_UXGA;
+    config.jpeg_quality = 10;
     config.fb_count = 2;
-#endif
+  } else {
+    config.frame_size = FRAMESIZE_SVGA;
+    config.jpeg_quality = 12;
+    config.fb_count = 1;
   }
 
 #if defined(CAMERA_MODEL_ESP_EYE)
@@ -111,21 +88,14 @@ void setup() {
     s->set_saturation(s, -2); // lower the saturation
   }
   // drop down frame size for higher initial frame rate
-  if(config.pixel_format == PIXFORMAT_JPEG){
-    s->set_framesize(s, FRAMESIZE_QVGA);
-  }
+  s->set_framesize(s, FRAMESIZE_QVGA);
 
 #if defined(CAMERA_MODEL_M5STACK_WIDE) || defined(CAMERA_MODEL_M5STACK_ESP32CAM)
   s->set_vflip(s, 1);
   s->set_hmirror(s, 1);
-#endif
-
-#if defined(CAMERA_MODEL_ESP32S3_EYE)
-  s->set_vflip(s, 1);
-#endif
+#endif    
 
   WiFi.begin(ssid, password);
-  WiFi.setSleep(false);
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -139,20 +109,28 @@ void setup() {
   Serial.print("Camera Ready! Use 'http://");
   Serial.print(WiFi.localIP());
   Serial.println("' to connect");
+
+  
 }
 
+
 void loop() {
-  if ((WiFi.status() != WL_CONNECTED)) // If wifi signal is lost. this code is executed
+  if ((WiFi.status() != WL_CONNECTED)) 
   {
-    Serial.println("Reconnecting to WiFi..."); // Signal that wifi connection is lost
-    WiFi.disconnect();                         // Disconnect the wifi and then reconnect
-    WiFi.reconnect();                        
+    Serial.println("Reconnecting to WiFi...");
+    WiFi.disconnect();
+    WiFi.reconnect();
     if ((WiFi.status() == WL_CONNECTED))
     {
       Serial.print("Camera Ready! Use 'http://");
       Serial.print(WiFi.localIP());
       Serial.println("' to connect");
     }
-    delay(3000); // Check if wifi signal found every 3 seconds
+    delay(3000);
   }
+  
+  digitalWrite(LED_PIN, HIGH);   // Turn on LED for 5 seconds
+  delay(5000);
+  esp_sleep_enable_ext0_wakeup(GPIO_NUM_13,1); // Exit deep sleep when High is given at GPIO13  
+  esp_deep_sleep_start();                      // Put esp32 to deep sleep to conserve power
 }
