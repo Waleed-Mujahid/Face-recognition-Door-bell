@@ -142,6 +142,17 @@ void setup() {
 }
 
 void loop() {
-  // Do nothing. Everything is done in another task by the web server
-  delay(10000);
+  if ((WiFi.status() != WL_CONNECTED)) // If wifi signal is lost. this code is executed
+  {
+    Serial.println("Reconnecting to WiFi..."); // Signal that wifi connection is lost
+    WiFi.disconnect();                         // Disconnect the wifi and then reconnect
+    WiFi.reconnect();                        
+    if ((WiFi.status() == WL_CONNECTED))
+    {
+      Serial.print("Camera Ready! Use 'http://");
+      Serial.print(WiFi.localIP());
+      Serial.println("' to connect");
+    }
+    delay(3000); // Check if wifi signal found every 3 seconds
+  }
 }
