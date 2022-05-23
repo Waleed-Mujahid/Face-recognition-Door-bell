@@ -48,5 +48,5 @@ read by our micro-controller.
 10. Congratulations you have succesfully deployed an 
 tensorflow model on a micro-controller.
 
-    converter = tf.lite.TFLiteConverter.from_keras_model(model)
-    tflite_model = converter.convert()
+  converter = tf.lite.TFLiteConverter.from_keras_model(model)
+  tflite_model = converter.convert()
