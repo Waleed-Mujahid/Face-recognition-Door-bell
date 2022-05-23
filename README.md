@@ -1,5 +1,5 @@
 # CAO-project
-  Automatic door bell with ESP32-cam
+Automatic door bell with ESP32-cam
 
 ## Project Description
   In this I use an ESP32 micro-controller to create an automatic door bell 
@@ -34,8 +34,8 @@ local computer.
 6. Once the model has trained, convert the model into a tf-lite
 model with the following command:
 
-  converter = tf.lite.TFLiteConverter.from_keras_model(model)
-  tflite_model = converter.convert()
+    converter = tf.lite.TFLiteConverter.from_keras_model(model)
+    tflite_model = converter.convert()
 
 7. Now convert this model into a C++ array so it can be 
 read by our micro-controller.
@@ -47,3 +47,4 @@ read by our micro-controller.
 9. Use the esp32 tensorflow library to run inference.
 10. Congratulations you have succesfully deployed an 
 tensorflow model on a micro-controller.
+
