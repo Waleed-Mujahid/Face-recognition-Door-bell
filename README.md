@@ -34,14 +34,16 @@ local computer.
 6. Once the model has trained, convert the model into a tf-lite
 model with the following command:
 
-  **converter = tf.lite.TFLiteConverter.from_keras_model(model)**
-  **tflite_model = converter.convert()**
+  >converter = tf.lite.TFLiteConverter.from_keras_model(model)
+  >
+  >tflite_model = converter.convert()**
 
 7. Now convert this model into a C++ array so it can be 
 read by our micro-controller.
 
-  **!apt-get -qq install xxd        (Get the xxd command) **
-  **!xxd -i model.tflite > model.cc**
+  >!apt-get -qq install xxd        (Get the xxd command)
+  >
+  >!xxd -i model.tflite > model.cc**
 
 8. Create a sketch, and add the model.cc file to it.
 9. Use the esp32 tensorflow library to run inference.
