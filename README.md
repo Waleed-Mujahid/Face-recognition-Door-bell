@@ -42,7 +42,8 @@ model with the following command:
 read by our micro-controller.
 
   >!apt-get -qq install xxd        (Get the xxd command)
-  >!xxd -i model.tflite > model.cc**
+  >
+  >!xxd -i model.tflite > model.cc
 
 8. Create a sketch, and add the model.cc file to it.
 9. Use the esp32 tensorflow library to run inference.
