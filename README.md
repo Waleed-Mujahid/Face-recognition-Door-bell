@@ -1,5 +1,5 @@
 # CAO-project
-Automatic door bell with ESP32-cam
+  Automatic door bell with ESP32-cam
 
 ## Project Description
   In this I use an ESP32 micro-controller to create an automatic door bell 
