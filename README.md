@@ -50,3 +50,6 @@ read by our micro-controller.
 10. Congratulations you have succesfully deployed an 
 tensorflow model on a micro-controller.
 
+## Model Summary
+Here is a look at our model's layers:
+![model summary]([https://github.com/[username]/[reponame]/blob/[branch]/image.jpg?raw=true](https://github.com/Waleed-Mujahid/CAO-project/blob/main/Model_Summary.png))
